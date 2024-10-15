@@ -1,23 +1,25 @@
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useState, useRef } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
-import * as FileSystem from 'expo-file-system';
+import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export default function App() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
-  const cameraRef = useRef(null); // Referência para a câmera
+  const cameraRef = useRef(null);
 
   if (!permission) {
-    return <View />; // Permissões da câmera estão carregando.
+    return <View />;
   }
 
   if (!permission.granted) {
     return (
       <View style={styles.container}>
         <Text style={styles.message}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="Grant Permission" />
+        <TouchableOpacity onPress={requestPermission} style={styles.button}>
+          <Text style={styles.buttonText}>Grant Permission</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -28,9 +30,9 @@ export default function App() {
 
   async function takePicture() {
     if (cameraRef.current) {
-      const photo = await cameraRef.current.takePictureAsync(); // Tira a foto
-      const asset = await MediaLibrary.createAssetAsync(photo.uri); // Salva a foto na biblioteca de mídia
-      Alert.alert('Photo Saved', `Photo saved to: ${asset.uri}`); // Mensagem de confirmação
+      const photo = await cameraRef.current.takePictureAsync();
+      const asset = await MediaLibrary.createAssetAsync(photo.uri);
+      Alert.alert('Photo Saved', `Photo saved to: ${asset.uri}`);
     }
   }
 
@@ -38,11 +40,11 @@ export default function App() {
     <View style={styles.container}>
       <CameraView style={styles.camera} ref={cameraRef} facing={facing}>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
+          <TouchableOpacity style={styles.iconButton} onPress={toggleCameraFacing}>
+            <Icon name="flip-camera-ios" size={30} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={takePicture}>
-            <Text style={styles.text}>Take Photo</Text>
+          <TouchableOpacity style={styles.iconButton} onPress={takePicture}>
+            <Icon name="photo-camera" size={30} color="white" />
           </TouchableOpacity>
         </View>
       </CameraView>
@@ -61,21 +63,23 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
+    borderRadius: 10,
+    overflow: 'hidden',
   },
   buttonContainer: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: 'transparent',
-    margin: 64,
+    alignItems: 'flex-end',
+    margin: 20,
   },
-  button: {
-    flex: 1,
-    alignSelf: 'flex-end',
-    alignItems: 'center',
+  iconButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 50,
+    padding: 10,
   },
-  text: {
-    fontSize: 24,
+  buttonText: {
+    fontSize: 18,
     fontWeight: 'bold',
     color: 'white',
   },
